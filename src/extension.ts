@@ -215,6 +215,53 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(translateSelectionCmd);
 
+    // Command: Translate & Rename Identifier (Variable or Function)
+    const translateAndRenameCmd = vscode.commands.registerCommand(
+        'anas-g-lens.translateAndRenameIdentifier',
+        async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                return;
+            }
+
+            const document = editor.document;
+            const position = editor.selection.active;
+            const wordRange = document.getWordRangeAtPosition(position);
+            
+            if (!wordRange) {
+                vscode.window.showInformationMessage('Please place your cursor on a variable or function name.');
+                return;
+            }
+
+            const originalText = document.getText(wordRange);
+            
+            const config = vscode.workspace.getConfiguration('anasGLens');
+            const targetLang = config.get<string>('targetLanguage', 'en');
+            const service = config.get<string>('translationService', 'Google Translate (Free Web API)');
+
+            vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `Translating identifier "${originalText}"...`,
+                cancellable: false
+            }, async () => {
+                try {
+                    const translated = await translateText(originalText, targetLang, service);
+                    const formattedNewName = formatIdentifier(translated, originalText);
+                    
+                    // Trigger VS Code Rename Command
+                    await vscode.commands.executeCommand('editor.action.rename', [
+                        document.uri,
+                        position,
+                        formattedNewName
+                    ]);
+                } catch (err: any) {
+                    vscode.window.showErrorMessage(`Rename translation failed: ${err.message || err}`);
+                }
+            });
+        }
+    );
+    context.subscriptions.push(translateAndRenameCmd);
+
     // Command: Translate All Comments in File
     const translateFileCommentsCmd = vscode.commands.registerCommand(
         'anas-g-lens.translateFileComments',
@@ -374,4 +421,38 @@ function extractCommentText(line: string): { prefix: string; commentText: string
         return { prefix: '<!--', commentText: content.trim() };
     }
     return null;
+}
+
+/**
+ * Helper to translate non-English identifiers (variables, functions, classes)
+ * and format them to match the codebase style (camelCase, snake_case, PascalCase, UPPER_SNAKE_CASE).
+ */
+function formatIdentifier(translatedText: string, originalText: string): string {
+    let cleanText = translatedText.replace(/[^a-zA-Z0-9\s-_]/g, '').trim();
+    if (!cleanText) {
+        return originalText;
+    }
+
+    const words = cleanText.split(/[\s-_]+/);
+
+    const isAllCaps = originalText === originalText.toUpperCase() && originalText.includes('_');
+    const isSnakeCase = originalText.includes('_') && !isAllCaps;
+    const isPascalCase = /^[A-Z][a-z0-9]*/.test(originalText) && !originalText.includes('_');
+
+    if (isAllCaps) {
+        return words.map(w => w.toUpperCase()).join('_');
+    }
+    if (isSnakeCase) {
+        return words.map(w => w.toLowerCase()).join('_');
+    }
+
+    // Default to camelCase or PascalCase
+    const formatted = words.map((w, idx) => {
+        if (idx === 0 && !isPascalCase) {
+            return w.toLowerCase();
+        }
+        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    }).join('');
+
+    return formatted;
 }

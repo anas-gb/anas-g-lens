@@ -41,6 +41,10 @@
         "title": "Anas G Lens: Translate Selected Text"
       },
       {
+        "command": "anas-g-lens.translateAndRenameIdentifier",
+        "title": "Anas G Lens: Translate & Rename Variable/Function"
+      },
+      {
         "command": "anas-g-lens.translateFileComments",
         "title": "Anas G Lens: Translate All Comments in File"
       },
@@ -53,8 +57,13 @@
       "editor/context": [
         {
           "command": "anas-g-lens.translateSelection",
-          "group": "navigation",
+          "group": "navigation@1",
           "when": "editorHasSelection"
+        },
+        {
+          "command": "anas-g-lens.translateAndRenameIdentifier",
+          "group": "navigation@2",
+          "when": "editorTextFocus"
         }
       ]
     },
