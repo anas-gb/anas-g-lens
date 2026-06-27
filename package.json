@@ -1,0 +1,82 @@
+{
+  "name": "anas-g-lens",
+  "displayName": "Anas G Lens",
+  "description": "Translate foreign code comments, docstrings, and text in real-time with Hover, CodeLens, and commands.",
+  "version": "0.1.0",
+  "publisher": "anas",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "anas-g-lens.translateSelection",
+        "title": "Anas G Lens: Translate Selected Text"
+      },
+      {
+        "command": "anas-g-lens.translateFileComments",
+        "title": "Anas G Lens: Translate All Comments in File"
+      },
+      {
+        "command": "anas-g-lens.toggleHoverTranslation",
+        "title": "Anas G Lens: Toggle Hover Translation"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "anas-g-lens.translateSelection",
+          "group": "navigation",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Anas G Lens",
+      "properties": {
+        "anasGLens.targetLanguage": {
+          "type": "string",
+          "default": "en",
+          "description": "Target language code to translate into (e.g., 'en' for English, 'es' for Spanish, 'ur' for Urdu)."
+        },
+        "anasGLens.enableHoverTranslation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable translating comments and docstrings on hover."
+        },
+        "anasGLens.enableCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable displaying a 'Translate' CodeLens above non-English comments."
+        },
+        "anasGLens.translationService": {
+          "type": "string",
+          "enum": [
+            "MyMemory (Free, No Key)",
+            "Google Translate (Free Web API)",
+            "LibreTranslate (Free Public API)"
+          ],
+          "default": "Google Translate (Free Web API)",
+          "description": "The translation provider service to use."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "echo 'No linting configured'"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@types/vscode": "^1.75.0",
+    "typescript": "^5.0.0"
+  }
+}
