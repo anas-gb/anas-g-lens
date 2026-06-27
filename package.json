@@ -4,6 +4,10 @@
   "description": "Translate foreign code comments, docstrings, and text in real-time with Hover, CodeLens, and commands.",
   "version": "0.1.0",
   "publisher": "anas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anas-projects/anas-g-lens.git"
+  },
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -13,6 +17,24 @@
   "main": "./out/extension.js",
   "activationEvents": [],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "anas-g-lens-container",
+          "title": "Anas G Lens",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "anas-g-lens-container": [
+        {
+          "type": "webview",
+          "id": "anas-g-lens-sidebar",
+          "name": "Anas G Lens Dashboard"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "anas-g-lens.translateSelection",

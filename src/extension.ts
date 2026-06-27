@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { isForeignText, translateText } from './translator';
+import { AnasGLensSidebarProvider } from './sidebarProvider';
 
 // Cache for translations to prevent redundant API calls
 const translationCache = new Map<string, string>();
@@ -9,6 +10,14 @@ const activeDecorations = new Map<string, { decorationType: vscode.TextEditorDec
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Anas G Lens extension is now active!');
+
+    // Register Webview Sidebar
+    const sidebarProvider = new AnasGLensSidebarProvider(context);
+    const sidebarDisposable = vscode.window.registerWebviewViewProvider(
+        AnasGLensSidebarProvider.viewType,
+        sidebarProvider
+    );
+    context.subscriptions.push(sidebarDisposable);
 
     // Hover Provider
     const hoverProvider = vscode.languages.registerHoverProvider('*', {
@@ -257,7 +266,6 @@ export function activate(context: vscode.ExtensionContext) {
             }, async (progress) => {
                 let successCount = 0;
                 
-                // Let's resolve translations in parallel
                 try {
                     const promises = commentsToTranslate.map(async (item) => {
                         const cacheKey = `${targetLang}:${service}:${item.text}`;
@@ -271,11 +279,9 @@ export function activate(context: vscode.ExtensionContext) {
 
                     const results = await Promise.all(promises);
 
-                    // Apply edits in a workspace edit block to bundle undo/redo
                     const workspaceEdit = new vscode.WorkspaceEdit();
                     for (const { item, translated } of results) {
                         const lineText = document.lineAt(item.lineIndex).text;
-                        // Reconstruct line keeping the comment prefix
                         const commentInfo = extractCommentText(lineText);
                         if (commentInfo) {
                             const newCommentLine = lineText.replace(commentInfo.commentText, ` ${translated}`);
@@ -341,22 +347,18 @@ function extractCommentText(line: string): { prefix: string; commentText: string
     if (trimmed.startsWith('//')) {
         return { prefix: '//', commentText: trimmed.substring(2).trim() };
     }
-    
     if (trimmed.startsWith('#')) {
         return { prefix: '#', commentText: trimmed.substring(1).trim() };
     }
-
     if (trimmed.startsWith('--')) {
         return { prefix: '--', commentText: trimmed.substring(2).trim() };
     }
-
     if (trimmed.startsWith('*')) {
         if (trimmed.startsWith('*/')) {
             return null;
         }
         return { prefix: '*', commentText: trimmed.substring(1).trim() };
     }
-
     if (trimmed.startsWith('/*')) {
         let content = trimmed.substring(2);
         if (content.endsWith('*/')) {
@@ -364,7 +366,6 @@ function extractCommentText(line: string): { prefix: string; commentText: string
         }
         return { prefix: '/*', commentText: content.trim() };
     }
-
     if (trimmed.startsWith('<!--')) {
         let content = trimmed.substring(4);
         if (content.endsWith('-->')) {
@@ -372,6 +373,5 @@ function extractCommentText(line: string): { prefix: string; commentText: string
         }
         return { prefix: '<!--', commentText: content.trim() };
     }
-
     return null;
 }
