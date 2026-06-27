@@ -27,14 +27,14 @@ You can install this extension locally on any device running VS Code.
 ### For macOS and Linux (Terminal)
 Run this command in your terminal to download, compile, and install the extension:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<YOUR_GITHUB_USERNAME>/anas-g-lens/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/anas-gb/anas-g-lens/main/install.sh | bash
 ```
 *(Alternatively, clone the repository, navigate to the folder, and run `./install.sh`)*
 
 ### For Windows (PowerShell)
 Run this command in PowerShell (as Administrator):
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/<YOUR_GITHUB_USERNAME>/anas-g-lens/main/install.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/anas-gb/anas-g-lens/main/install.ps1'))
 ```
 *(Alternatively, clone the repository, navigate to the folder, and run `./install.ps1`)*
 
