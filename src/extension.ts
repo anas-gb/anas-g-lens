@@ -19,6 +19,22 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(sidebarDisposable);
 
+    // Sync active editor details to webview on change
+    const activeEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+            sidebarProvider.sendActiveFileDetails(editor.document);
+        }
+    });
+    context.subscriptions.push(activeEditorChangeDisposable);
+
+    const docChangeDisposable = vscode.workspace.onDidChangeTextDocument(event => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor && event.document === editor.document) {
+            sidebarProvider.sendActiveFileDetails(editor.document);
+        }
+    });
+    context.subscriptions.push(docChangeDisposable);
+
     // Hover Provider
     const hoverProvider = vscode.languages.registerHoverProvider('*', {
         async provideHover(document, position, token) {
@@ -423,10 +439,6 @@ function extractCommentText(line: string): { prefix: string; commentText: string
     return null;
 }
 
-/**
- * Helper to translate non-English identifiers (variables, functions, classes)
- * and format them to match the codebase style (camelCase, snake_case, PascalCase, UPPER_SNAKE_CASE).
- */
 function formatIdentifier(translatedText: string, originalText: string): string {
     let cleanText = translatedText.replace(/[^a-zA-Z0-9\s-_]/g, '').trim();
     if (!cleanText) {
@@ -446,7 +458,6 @@ function formatIdentifier(translatedText: string, originalText: string): string 
         return words.map(w => w.toLowerCase()).join('_');
     }
 
-    // Default to camelCase or PascalCase
     const formatted = words.map((w, idx) => {
         if (idx === 0 && !isPascalCase) {
             return w.toLowerCase();
