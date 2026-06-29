@@ -1,3 +1,4 @@
+<img width="1890" height="997" alt="260629_13h59m34s_screenshot" src="https://github.com/user-attachments/assets/d9ad2a18-27e1-44d5-8792-730941424c50" />
 # Anas G Lens 🌐
 
 **Anas G Lens** is a lightweight, real-time VS Code translation extension designed to help you debug code written by developers from other countries (e.g., Chinese, Russian, Spanish, Urdu, etc.). It translates comments, docstrings, and custom text selections on the fly.
